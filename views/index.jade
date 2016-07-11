@@ -1,0 +1,181 @@
+doctype html
+html()
+  head
+    title= title
+    link(rel='stylesheet', href='/stylesheets/bootstrap.min.css')
+    link(rel='stylesheet', href='/stylesheets/font-awesome.min.css')
+    link(rel='stylesheet', href='/stylesheets/base.css')
+    style.
+      h1, h2, h3, h4, h5 {font-weight: bold;}
+  body(style="over-flow:hidden;" id="vue_body_id")
+    header(class="header")
+      div(class="row-fluid")
+        div(class="col-md-5", style="position:relative;")
+          a(class="logo") 小智云rap导航
+        br(style="clear:both;")
+
+    main(class="row-fluid")
+      div(class="col-md-6" style="padding:0;")
+        div(class="top-nav")
+          input(id="input_service_id" style="width:300px;" placeholder="请输入serviceId" v-model="serviceId" type="text")
+          button(v-on:click="greet") Search
+        div(class="out-put")
+          ul(style="list-style:none;")
+            li(style="margin-left:-50px;", v-for="todo in todos")
+              a(href="#",v-on:click="show_result(todo)") 详情
+              a(href="http://172.31.10.50:8080/workspace/myWorkspace.do?projectId={{todo.projectId}}#{{todo.actionId}}" target="_blank" style="margin-left:10px;") 点击进入rap
+              span(style="margin-left:10px;")服务名称：{{todo.actionName}} serviceId：{{todo.serviceId}}
+
+
+          div(style="float: left;")
+            span(style="margin-left:30px;") 第{{currentPage}}页
+            button(style="margin-left:30px;",v-on:click="show_pre()") 上一页
+            button(style="margin-left:30px;",v-on:click="show_next()") 下一页
+            span(style="margin-left:30px;") 共{{totalNum}}条
+      div(class="col-md-3" style="padding:0;")
+        div(class="top-nav")
+          span 入参
+        div(id="json-input" class="out-put")
+          span(style="color: #f1592a;font-weight:bold;")
+
+      div(class="col-md-3" style="padding:0;")
+        div(class="top-nav")
+          span 出参
+        div(id="json-output" class="out-put")
+          span(style="color: #f1592a;font-weight:bold;")
+      br(style="clear:both;")
+
+    footer(style="padding:20px;")
+    script(type="text/javascript" async="" src="/javascripts/mixpanel-2-latest.min.js")
+    script.
+      (function (f, b) {
+        if (!b.__SV) {
+          var a, e, i, g;
+          window.mixpanel = b;
+          b._i = [];
+          b.init = function (a, e, d) {
+            function f(b, h) {
+              var a = h.split(".");
+              2 == a.length && (b = b[a[0]], h = a[1]);
+              b[h] = function () {
+                b.push([h].concat(Array.prototype.slice.call(arguments, 0)))
+              }
+            }
+
+            var c = b;
+            "undefined" !== typeof d ? c = b[d] = [] : d = "mixpanel";
+            c.people = c.people || [];
+            c.toString = function (b) {
+              var a = "mixpanel";
+              "mixpanel" !== d && (a += "." + d);
+              b || (a += " (stub)");
+              return a
+            };
+            c.people.toString = function () {
+              return c.toString(1) + ".people (stub)"
+            };
+            i = "disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.union people.track_charge people.clear_charges people.delete_user".split(" ");
+            for (g = 0; g < i.length; g++) f(c, i[g]);
+            b._i.push([a, e, d])
+          };
+          b.__SV = 1.2;
+          a = f.createElement("script");
+          a.type = "text/javascript";
+          a.async = !0;
+          a.src = "undefined" !== typeof MIXPANEL_CUSTOM_LIB_URL ? MIXPANEL_CUSTOM_LIB_URL : "/javascripts/mixpanel-2-latest.min.js";
+          e = f.getElementsByTagName("script")[0];
+          e.parentNode.insertBefore(a, e)
+        }
+      })(document, window.mixpanel || []);
+      mixpanel.init("ba051766103ef50e2966a86cb26a672f");
+      mixpanel.track("Json.cn");
+
+    script(src="/javascripts/jquery.min.js")
+    script(src="/javascripts/jquery.message.js")
+    div(style="clear:both;")
+    div(id="jquery-beauty-msg")
+    script(src="/javascripts/jquery.json.js")
+    script(src="/javascripts/angular.min.js")
+    script(src="/javascripts/angular-route.min.js")
+    script(src="/app.js")
+    script(src="/app/app.controller.js")
+    script(src="/javascripts/vue.js")
+    script(src="/javascripts/jquery.xml2json.js")
+    script(src="/javascripts/jquery.json2xml.js")
+    script(src="/javascripts/json2.js")
+    script(src="/javascripts/jsonlint.js")
+    script(src="/javascripts/bootstrap.min.js")
+    script.
+
+      var bodyData = {
+        serviceId: "",
+        currentPage: 1,
+        totalNum: "",
+        todos:[]
+      };
+      var bodyVM = new Vue({
+        el: '#vue_body_id',
+        data: bodyData,
+        methods: {
+          greet: function (event) {
+            search_service();
+          },
+          show_result:function(line){
+            show_result(line);
+          },
+          show_pre: function () {
+            search_service(1,1);
+          },
+          show_next: function () {
+            search_service(1,0);
+          },
+        }
+      });
+
+      var search_service = function(is_btn,is_up){
+        var param = {"serviceId":bodyData.serviceId};
+        if(is_btn){
+          if(is_up && ((bodyData.currentPage - 1) > 0)){
+            param.currentPage = (bodyData.currentPage - 1);
+          }else{
+            if(bodyData.currentPage * 30 < bodyData.totalNum){
+              param.currentPage = (bodyData.currentPage + 1);
+            }
+          }
+        };
+
+        $.ajax({
+          type: "get",
+          url: "/json",
+          data: param,
+          dataType: "json",
+          success: function (data) {
+            bodyData.currentPage = data.currentPage;
+            bodyData.totalNum = data.totalNum;
+            if(data.totalNum > 0){
+              bodyData.todos = data.list;
+              show_result(bodyData.todos[0]);
+            }else{
+              bodyData.todos = [];
+              $('#json-input').html("");
+              $('#json-output').html("");
+            }
+
+          },
+          error: function (XMLHttpRequest, textStatus, errorThrown) {
+           alert(errorThrown);
+          }
+        });
+      };
+
+      var show_result = function(data){
+        var requestParam = JSON.stringify(data.requestParam);
+        $('#json-input').html(new JSONFormat(requestParam, 4).toString());
+        var responseParam = JSON.stringify(data.responseParam);
+        $('#json-output').html(new JSONFormat(responseParam, 4).toString());
+      };
+
+      //初始化查询
+      search_service();
+
+

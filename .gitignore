@@ -1,0 +1,9 @@
+*~
+.DS_Store
+.project
+.buildpath
+.settings
+.idea
+.idea/workspace.xml
+/.idea
+*.config
