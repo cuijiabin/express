@@ -17,8 +17,9 @@ html()
     main(class="row-fluid")
       div(class="col-md-6" style="padding:0;")
         div(class="top-nav")
-          input(id="input_service_id" style="width:300px;" placeholder="请输入serviceId" v-model="serviceId" type="text")
-          button(v-on:click="greet") Search
+          input(style="width:300px;" placeholder="请输入serviceId,服务名称" v-model="serviceId" type="text")
+          button(v-on:click="greet") 搜索
+          button(v-on:click="clear_input") 清空
         div(class="out-put")
           ul(style="list-style:none;")
             li(style="margin-left:-50px;", v-for="todo in todos")
@@ -129,6 +130,9 @@ html()
           show_next: function () {
             search_service(1,0);
           },
+          clear_input:function(){
+            bodyData.serviceId = "";
+          }
         }
       });
 
@@ -177,5 +181,12 @@ html()
 
       //初始化查询
       search_service();
+      document.onkeydown = function (e) {
+        //捕捉回车事件
+        var ev = (typeof event != 'undefined') ? window.event : e;
+        if (ev.keyCode == 13) {
+          search_service();
+        }
+      }
 
 
