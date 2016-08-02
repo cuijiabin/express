@@ -1,8 +1,8 @@
 var express = require('express');
 var router = express.Router();
 
-var monk = require('monk');
-var db = monk('localhost:27017/rap');
+var db = require('monk')('localhost:27017/rap');
+var Q = require('q');
 
 router.get('/', function (req, res, next) {
     res.render('index', {title: '小智云rap导航'});
@@ -48,9 +48,15 @@ router.get('/edit',function(req,res){
     var actionId = req.query.actionId;
     var query = {"actionId": parseInt(actionId)};
     var collection = db.get('my_rap');
+
+    var defer = Q.defer();
     collection.findOne(query,function(e, docs){
+        defer.resolve(docs);
+    });
+
+    defer.promise.then(function(data){
         res.render('json', {
-            list: JSON.stringify(docs)
+            list: JSON.stringify(data)
         });
     });
 });
@@ -60,6 +66,21 @@ router.get('/edit_tool',function(req,res){
     res.render('edit_json', {
         actionId: actionId,
         title: '编辑'
+    });
+});
+
+router.all("/update",function(req,res){
+    var jsonData = req.query.jsonData;
+    var actionId = parseInt(jsonData.actionId);
+    jsonData.actionId = actionId;
+
+    delete jsonData._id;
+
+    var collection = db.get('my_rap');
+    collection.update({"actionId":actionId},jsonData,function(){
+        res.render('json', {
+            list: "修改成功"
+        });
     });
 });
 

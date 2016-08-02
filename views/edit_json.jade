@@ -45,7 +45,7 @@ html.win.chrome.chrome51.webkit.webkit5
             input(type="hidden" id="actionId" value=actionId)
             button(id="save_id" type="button" style="margin-top:10px;font-size:18px;cursor:pointer") 保存到服务器
             #content-wrapper
-                #jsoneditor(style='width: 960px;')
+                #jsoneditor(style='width: 960px;height:800px;')
                 #splitter
                 #jsonformatter(style='left: 988px; width: 931px;height:800px;')
                 .clear
@@ -73,5 +73,18 @@ html.win.chrome.chrome51.webkit.webkit5
             }catch(e){}
 
             $("#save_id").click(function () {
-                alert(JSON.stringify(editor.get()));
+                var jsonData = editor.get();
+                $.ajax({
+                    type: "get",
+                    url: "/update",
+                    data: {"jsonData": jsonData},
+                    dataType: "json",
+                    success: function (data) {
+                        alert("数据修改成功");
+                        location.reload(true);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        alert(errorThrown);
+                    }
+                });
             });
