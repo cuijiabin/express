@@ -1,0 +1,77 @@
+doctype html
+// saved from url=(0055)http://www.json.org.cn/tools/JSONEditorOnline/index.htm
+html.win.chrome.chrome51.webkit.webkit5
+    head
+        meta(http-equiv='Content-Type', content='text/html; charset=UTF-8')
+        title= title
+        meta(name='keywords', content='JSON编辑器')
+        meta(name='description', content='JSON编辑器')
+        link(rel='stylesheet', type='text/css', href='/edit/core.css')
+        style(type='text/css').
+            *{font-size: 13px;}
+            #body-wrapper{width: 100%;}
+            /* Content Wrapper */
+            #content-wrapper{
+                width: 100%;
+                height: 100%;
+                padding: 0px;
+                padding-top: 18px;
+                padding-bottom: 88px;
+                margin-bottom: -85px;
+                text-align: left;
+                -moz-box-sizing: border-box;
+                -webkit-box-sizing: border-box;
+                box-sizing: border-box;
+            }
+            #copyright-wrapper{
+                margin: 0 auto;
+                margin-bottom: 0px;
+            }
+        // JSON Editor Online
+        link(rel='stylesheet', type='text/css', href='/edit/app.css')
+        link(rel='stylesheet', type='text/css', href='/edit/jsoneditor.css')
+        script(type='text/javascript', src='/edit/jsoneditor.js')
+        script(type='text/javascript', src='/edit/notify.js')
+        script(type='text/javascript', src='/edit/splitter.js')
+        script(type='text/javascript', src='/edit/app.js')
+        script(type='text/javascript', src='/edit/jsonlint.js')
+        // jReject
+        link(rel='stylesheet', type='text/css', href='/edit/jquery.reject.css')
+        script(type='text/javascript', src='/edit/jquery.js')
+        script(type='text/javascript', src='/edit/jquery.reject.js')
+        script(type='text/javascript', src='/edit/jquery.reject.360.js')
+    body(spellcheck='false')
+        #body-wrapper
+            input(type="hidden" id="actionId" value=actionId)
+            button(id="save_id" type="button" style="margin-top:10px;font-size:18px;cursor:pointer") 保存到服务器
+            #content-wrapper
+                #jsoneditor(style='width: 960px;')
+                #splitter
+                #jsonformatter(style='left: 988px; width: 931px;height:800px;')
+                .clear
+            .clear
+            // CopyRight
+            #copyright-wrapper
+                #copyright
+        script(type='text/javascript').
+            var actionId = $("#actionId").val();
+            actionId = actionId || 138 ;
+            try{
+                $.ajax({
+                    type: "get",
+                    url: "/edit",
+                    data: {"actionId":actionId},
+                    dataType: "json",
+                    success: function (data) {
+                        app.load(data);
+                        app.resize();
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        alert(errorThrown);
+                    }
+                });
+            }catch(e){}
+
+            $("#save_id").click(function () {
+                alert(JSON.stringify(editor.get()));
+            });

@@ -23,7 +23,8 @@ html()
         div(class="out-put")
           ul(style="list-style:none;")
             li(style="margin-left:-50px;", v-for="todo in todos")
-              a(href="#",v-on:click="show_result(todo)") 详情
+              a(style="cursor:pointer",v-on:click="show_result(todo)") 详情
+              a(href="/edit_tool?actionId={{todo.actionId}}" target="_blank" style="margin-left:10px;") 编辑
               a(href="http://172.31.10.50:8080/workspace/myWorkspace.do?projectId={{todo.projectId}}#{{todo.actionId}}" target="_blank" style="margin-left:10px;") 点击进入rap
               span(style="margin-left:10px;")服务名称：{{todo.actionName}} serviceId：{{todo.serviceId}}
 
@@ -96,10 +97,6 @@ html()
     div(style="clear:both;")
     div(id="jquery-beauty-msg")
     script(src="/javascripts/jquery.json.js")
-    script(src="/javascripts/angular.min.js")
-    script(src="/javascripts/angular-route.min.js")
-    script(src="/app.js")
-    script(src="/app/app.controller.js")
     script(src="/javascripts/vue.js")
     script(src="/javascripts/jquery.xml2json.js")
     script(src="/javascripts/jquery.json2xml.js")

@@ -11,7 +11,6 @@ router.get('/', function (req, res, next) {
 router.get('/json', function (req, res) {
 
     var serviceId = req.query.serviceId;
-    console.log(serviceId);
     var currentPage = req.query.currentPage ? parseInt(req.query.currentPage) : 1;
 
     var collection = db.get('my_rap');
@@ -42,6 +41,26 @@ router.get('/json', function (req, res) {
         }
     });
 
+});
+
+//参数编辑
+router.get('/edit',function(req,res){
+    var actionId = req.query.actionId;
+    var query = {"actionId": parseInt(actionId)};
+    var collection = db.get('my_rap');
+    collection.findOne(query,function(e, docs){
+        res.render('json', {
+            list: JSON.stringify(docs)
+        });
+    });
+});
+
+router.get('/edit_tool',function(req,res){
+    var actionId = req.query.actionId;
+    res.render('edit_json', {
+        actionId: actionId,
+        title: '编辑'
+    });
 });
 
 module.exports = router;
