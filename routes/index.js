@@ -17,10 +17,9 @@ router.get('/json', function (req, res) {
     var query = {"serviceId":{$regex: serviceId}};
     if(/.*[\u4e00-\u9fa5]+.*$/.test(serviceId)){
         query = {"actionName":{$regex: serviceId}};
-    }else if(/\d*/.test(serviceId) && serviceId){
+    }else if(serviceId && !isNaN(parseInt(serviceId))){
         query = {"actionId": parseInt(serviceId)};
     }
-
     var return_param={
         "currentPage":currentPage
     }

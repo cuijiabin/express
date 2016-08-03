@@ -115,6 +115,8 @@ router.get("/del",function(req,res){
 });
 
 router.get("/test",function(req,res){
+    res.header("Access-Control-Allow-Origin", "*");//设置跨域访问
+
     var actionId = parseInt(req.query.actionId);
     var order = parseInt(req.query.order);
 
@@ -124,9 +126,7 @@ router.get("/test",function(req,res){
         if(data.responseParam){
             r = data.responseParam;
         };
-        res.render('json', {
-            list: JSON.stringify(r)
-        });
+        res.send(JSON.stringify(r));
     });
 });
 
