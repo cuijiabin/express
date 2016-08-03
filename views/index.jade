@@ -17,17 +17,18 @@ html()
     main(class="row-fluid")
       div(class="col-md-6" style="padding:0;")
         div(class="top-nav")
-          input(style="width:300px;" placeholder="请输入serviceId,服务名称" v-model="serviceId" type="text")
+          input(style="width:300px;" placeholder="请输入serviceId,actionId,服务名称" v-model="serviceId" type="text")
           button(v-on:click="greet") 搜索
           button(v-on:click="clear_input") 清空
         div(class="out-put")
           ul(style="list-style:none;")
             li(style="margin-left:-50px;", v-for="todo in todos")
-              a(style="cursor:pointer",v-on:click="show_result(todo)") 详情
-              a(href="/edit_tool?actionId={{todo.actionId}}" target="_blank" style="margin-left:10px;") 编辑
-              a(href="/fake?actionId={{todo.actionId}}" target="_blank" style="margin-left:10px;") 假数据列表
-              a(href="http://172.31.10.50:8080/workspace/myWorkspace.do?projectId={{todo.projectId}}#{{todo.actionId}}" target="_blank" style="margin-left:10px;") 点击进入rap
-              span(style="margin-left:10px;")服务名称：{{todo.actionName}} serviceId：{{todo.serviceId}}
+              a(style="cursor:pointer",v-on:click="show_result(todo,$index)") 详情
+              a(href="/edit_tool?actionId={{todo.actionId}}" target="_blank" style="margin-left:10px;color:red;") 编辑
+              a(href="/fake?actionId={{todo.actionId}}" target="_blank" style="margin-left:10px;color:green;") 假数据
+              a(href="http://172.31.10.50:8080/workspace/myWorkspace.do?projectId={{todo.projectId}}#{{todo.actionId}}" target="_blank" style="margin-left:10px;") 进入rap
+              span(style="margin-left:10px;")服务名称：{{todo.actionName}}
+              span(style="margin-left:10px;color:red" v-if="c_data_index == $index",) *
 
 
           div(style="float: left;")
@@ -107,6 +108,7 @@ html()
     script.
 
       var bodyData = {
+        c_data_index:0,
         serviceId: "",
         currentPage: 1,
         totalNum: "",
@@ -119,8 +121,8 @@ html()
           greet: function (event) {
             search_service();
           },
-          show_result:function(line){
-            show_result(line);
+          show_result:function(line,index){
+            show_result(line,index);
           },
           show_pre: function () {
             search_service(1,1);
@@ -156,7 +158,7 @@ html()
             bodyData.totalNum = data.totalNum;
             if(data.totalNum > 0){
               bodyData.todos = data.list;
-              show_result(bodyData.todos[0]);
+              show_result(bodyData.todos[0],0);
             }else{
               bodyData.todos = [];
               $('#json-input').html("");
@@ -170,7 +172,8 @@ html()
         });
       };
 
-      var show_result = function(data){
+      var show_result = function(data,index){
+        bodyData.c_data_index = index;
         var requestParam = JSON.stringify(data.requestParam);
         $('#json-input').html(new JSONFormat(requestParam, 4).toString());
         var responseParam = JSON.stringify(data.responseParam);

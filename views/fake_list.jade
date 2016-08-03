@@ -15,7 +15,8 @@ html()
     header(class="header")
       div(class="row-fluid")
         div(class="col-md-5", style="position:relative;")
-          a(class="logo") !{g_project.actionName}-接口假数据
+            a(href="/") rap列表
+            a(class="logo") !{g_project.actionName}-接口假数据
         br(style="clear:both;")
 
     main(class="row-fluid")
@@ -29,11 +30,14 @@ html()
             li(style="margin-left:-50px;", v-for="todo in todos")
               {{$index}}
               a(style="cursor:pointer;margin-left:10px;",v-if="c_data_index != $index",v-on:click="show_result(todo,$index)") 编辑
-              a(style="cursor:pointer;margin-left:10px;",v-if="c_data_index == $index",v-on:click="show_result(todo,$index)") 保存
+              a(style="cursor:pointer;margin-left:10px;",v-if="c_data_index == $index",v-on:click="save_result(todo,$index)") 保存
+              a(style="cursor:pointer;margin-left:10px;",v-on:click="del_result(todo,$index)") 删除
+              a(href="/fake/test/?actionId={{todo.actionId}}&order={{todo.order}}",target="_blank", style="cursor:pointer;margin-left:10px;",v-if="todo._id") 测试
+
               span(style="margin-left:10px;")备注
               span(style="margin-left:10px;",v-if="c_data_index != $index"){{todo.remark}}
               input(style="margin-left:10px;",v-if="c_data_index == $index" v-model="todo.remark")
-              a(style="cursor:pointer;margin-left:10px;",v-if="todo._id",v-on:click="show_result(todo,$index)") 测试[已存]
+
 
           div(style="float: left;")
             span(style="margin-left:30px;") 第{{currentPage}}页
@@ -56,6 +60,7 @@ html()
     div(id="jquery-beauty-msg")
 
     script(src="/javascripts/jquery.min.js")
+    script(src="/javascripts/lodash.min.js")
     script(src="/javascripts/jquery.json.js")
     script(src="/javascripts/vue.js")
     script(src="/javascripts/bootstrap.min.js")
@@ -89,6 +94,12 @@ html()
            },
           show_result:function(line,index){
             show_result(line,index);
+          },
+          save_result:function(line,index){
+            save_result(line,index);
+          },
+          del_result: function (line, index) {
+             del_result(line, index);
           },
           show_pre: function () {
             search_service(1,1);
@@ -147,13 +158,59 @@ html()
           formatter.set(data);
       };
 
+      var save_result = function(data,index){
+          var jsonData = editor.get();
+          jsonData.remark = data.remark;
+          $.ajax({
+              type: "get",
+              url: "/fake/add",
+              data: {"jsonData": jsonData},
+              dataType: "json",
+              success: function (data) {
+                  search_service();
+              },
+              error: function (XMLHttpRequest, textStatus, errorThrown) {
+                  alert(errorThrown);
+              }
+          });
+      };
+
+      var del_result = function(data,index){
+          bodyData.todos.splice(index,1);
+          bodyData.c_data_index = -1;
+          if(_.has(data, "_id")){
+              $.ajax({
+                  type: "get",
+                  url: "/fake/del",
+                  data: {"uniq_id": data._id},
+                  dataType: "json",
+                  success: function (data) {
+                      search_service();
+                  },
+                  error: function (XMLHttpRequest, textStatus, errorThrown) {
+                      search_service();
+                  }
+              });
+          };
+      };
+
       var add_fake_data = function(){
+
+          var max_order = _.reduce(bodyData.todos, function (m, n) {
+              if(_.has(m, "order") && _.has(n, "order")){
+                  return m.order > n.order ? m : n;
+              }else{
+                  return m;
+              }
+          });
+          max_order = _.has(max_order, "order") ? (max_order.order+1):0;
+
           var index = bodyData.todos.length;
           var json = {
               "actionId": bodyData.actionId,
               "responseParam": JSON.parse(bodyData.responseParam),
               "remark": "假数据备注",
-              "order":index
+              "order":max_order
           };
           bodyData.todos.push(json);
           show_result(json,index);
