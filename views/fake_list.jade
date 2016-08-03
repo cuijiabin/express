@@ -1,0 +1,165 @@
+doctype html
+html()
+  head
+    title= title
+    link(rel='stylesheet', href='/stylesheets/bootstrap.min.css')
+    link(rel='stylesheet', href='/stylesheets/font-awesome.min.css')
+    link(rel='stylesheet', href='/stylesheets/base.css')
+    link(rel='stylesheet', type='text/css', href='/edit/app.css')
+    link(rel='stylesheet', type='text/css', href='/edit/jsoneditor.css')
+    link(rel='stylesheet', type='text/css', href='/edit/jquery.reject.css')
+
+    style.
+      h1, h2, h3, h4, h5 {font-weight: bold;}
+  body(style="over-flow:hidden;" id="vue_body_id")
+    header(class="header")
+      div(class="row-fluid")
+        div(class="col-md-5", style="position:relative;")
+          a(class="logo") !{g_project.actionName}-接口假数据
+        br(style="clear:both;")
+
+    main(class="row-fluid")
+      div(class="col-md-4" style="padding:0;")
+        div(class="top-nav")
+          input(v-model="actionId" type="hidden" value=g_project.actionId)
+          input(v-model="responseParam" type="hidden" value=responseParam)
+          button(v-on:click="greet") 新增假数据
+        div(class="out-put")
+          ul(style="list-style:none;")
+            li(style="margin-left:-50px;", v-for="todo in todos")
+              {{$index}}
+              a(style="cursor:pointer;margin-left:10px;",v-if="c_data_index != $index",v-on:click="show_result(todo,$index)") 编辑
+              a(style="cursor:pointer;margin-left:10px;",v-if="c_data_index == $index",v-on:click="show_result(todo,$index)") 保存
+              span(style="margin-left:10px;")备注
+              span(style="margin-left:10px;",v-if="c_data_index != $index"){{todo.remark}}
+              input(style="margin-left:10px;",v-if="c_data_index == $index" v-model="todo.remark")
+              a(style="cursor:pointer;margin-left:10px;",v-if="todo._id",v-on:click="show_result(todo,$index)") 测试[已存]
+
+          div(style="float: left;")
+            span(style="margin-left:30px;") 第{{currentPage}}页
+            button(style="margin-left:30px;",v-on:click="show_pre()") 上一页
+            button(style="margin-left:30px;",v-on:click="show_next()") 下一页
+            span(style="margin-left:30px;") 共{{totalNum}}条
+      div(class="col-md-4" style="padding:0;")
+        div(class="top-nav")
+            div(id="json-to" style="float:right;")
+        div(id="json-input" class="out-put")
+          span(style="color: #f1592a;font-weight:bold;")
+      div(class="col-md-4" style="padding:0;")
+        div(class="top-nav")
+        div(id="json-output" class="out-put")
+          span(style="color: #f1592a;font-weight:bold;")
+      br(style="clear:both;")
+
+    footer(style="padding:20px;")
+    div(style="clear:both;")
+    div(id="jquery-beauty-msg")
+
+    script(src="/javascripts/jquery.min.js")
+    script(src="/javascripts/jquery.json.js")
+    script(src="/javascripts/vue.js")
+    script(src="/javascripts/bootstrap.min.js")
+
+    script(type='text/javascript', src='/edit/jsoneditor.js')
+    script(type='text/javascript', src='/edit/notify.js')
+    script(type='text/javascript', src='/edit/splitter.js')
+    script(type='text/javascript', src='/edit/app_normal.js')
+    script(type='text/javascript', src='/edit/jsonlint.js')
+
+    script(type='text/javascript', src='/edit/jquery.js')
+    script(type='text/javascript', src='/edit/jquery.reject.js')
+    script(type='text/javascript', src='/edit/jquery.reject.360.js')
+
+    script.
+
+      var bodyData = {
+        actionId: "",
+        responseParam: {},
+        c_data_index: 0,
+        currentPage: 1,
+        totalNum: "",
+        todos:[]
+      };
+      var bodyVM = new Vue({
+        el: '#vue_body_id',
+        data: bodyData,
+        methods: {
+           greet: function (event) {
+             add_fake_data();
+           },
+          show_result:function(line,index){
+            show_result(line,index);
+          },
+          show_pre: function () {
+            search_service(1,1);
+          },
+          show_next: function () {
+            search_service(1,0);
+          }
+        }
+      });
+
+      var search_service = function(is_btn,is_up){
+        var param = {"actionId":bodyData.actionId};
+        if(is_btn){
+          if(is_up && ((bodyData.currentPage - 1) > 0)){
+            param.currentPage = (bodyData.currentPage - 1);
+          }else{
+            if(bodyData.currentPage * 30 < bodyData.totalNum){
+              param.currentPage = (bodyData.currentPage + 1);
+            }
+          }
+        };
+
+        $.ajax({
+          type: "get",
+          url: "/fake/list",
+          data: param,
+          dataType: "json",
+          success: function (data) {
+            bodyData.currentPage = data.currentPage;
+            bodyData.totalNum = data.totalNum;
+            if(data.totalNum > 0){
+              bodyData.todos = data.list;
+              init_editor(bodyData.todos[0]);
+            }else{
+              bodyData.todos = [];
+                init_editor({});
+            }
+
+          },
+          error: function (XMLHttpRequest, textStatus, errorThrown) {
+           alert(errorThrown);
+          }
+        });
+      };
+
+      var init_editor = function(data){
+          if(editor){
+              show_result(data,0);
+          }else{
+              app.load(data);
+          }
+      };
+      var show_result = function(data,index){
+          bodyData.c_data_index = index;
+          editor.set(data);
+          formatter.set(data);
+      };
+
+      var add_fake_data = function(){
+          var index = bodyData.todos.length;
+          var json = {
+              "actionId": bodyData.actionId,
+              "responseParam": JSON.parse(bodyData.responseParam),
+              "remark": "假数据备注",
+              "order":index
+          };
+          bodyData.todos.push(json);
+          show_result(json,index);
+      };
+
+      //初始化查询
+      search_service();
+
+

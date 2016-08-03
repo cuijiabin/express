@@ -25,6 +25,7 @@ html()
             li(style="margin-left:-50px;", v-for="todo in todos")
               a(style="cursor:pointer",v-on:click="show_result(todo)") 详情
               a(href="/edit_tool?actionId={{todo.actionId}}" target="_blank" style="margin-left:10px;") 编辑
+              a(href="/fake?actionId={{todo.actionId}}" target="_blank" style="margin-left:10px;") 假数据列表
               a(href="http://172.31.10.50:8080/workspace/myWorkspace.do?projectId={{todo.projectId}}#{{todo.actionId}}" target="_blank" style="margin-left:10px;") 点击进入rap
               span(style="margin-left:10px;")服务名称：{{todo.actionName}} serviceId：{{todo.serviceId}}
 
