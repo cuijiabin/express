@@ -4,6 +4,32 @@ var router = express.Router();
 var db = require('monk')('localhost:27017/rap');
 var Q = require('q');
 
+var mysql      = require('mysql');
+var connection = mysql.createConnection({
+    host     : 'localhost',
+    user     : 'root',
+    password : '123456',
+    database : 'rap_db'
+});
+
+connection.connect();
+
+var action_sql = "SELECT p.id AS pId,p.name AS pName,a.id AS aId,a.name AS aName"
+    + " FROM tb_project p"
+    + " JOIN tb_module m ON m.project_id = p.id"
+    + " JOIN tb_page p2 ON p2.module_id = m.id"
+    + " JOIN tb_action_and_page ap ON ap.page_id = p2.id"
+    + " JOIN tb_action a ON a.id = ap.action_id";
+
+connection.query(action_sql, function(err, rows, fields) {
+    if (err) throw err;
+
+    console.log('The rows is: ', rows[0]);
+    console.log('The fields is: ', fields);
+});
+
+connection.end();
+
 router.get('/', function (req, res, next) {
     res.render('index', {title: '小智云rap导航'});
 });
