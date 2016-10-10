@@ -40,7 +40,7 @@ router.get('/list', function (req, res) {
         "currentPage":currentPage
     };
 
-    //统计数量
+    //统计数量ss
     var count = function(query){
         var defer = Q.defer();
         collection.count(query,function(err,count){
